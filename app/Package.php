@@ -24,6 +24,7 @@ class Package extends Files
 
         $clonePath = $this->gitRepo->clone(/*'builds/' . $this->name . '/'*/);
 
+        print("ZIPAGE\n");
         $this->zip($clonePath, $filename);
 
         $this->makeMD5($filename);

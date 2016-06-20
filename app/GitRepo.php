@@ -27,6 +27,8 @@ class GitRepo extends Files
         $this->git("clone " . $this->link . ' ' . $this->path);
 
         $this->checkout();
+
+        return $this->path;
     }
 
     /**
@@ -52,10 +54,6 @@ class GitRepo extends Files
         //escapeshellarg(
         $command = 'git ' . $command;
         exec($command, $output, $returnValue);
-
-        var_dump($command);
-        var_dump($output);
-        var_dump($returnValue);
 
         if ($returnValue !== 0) {
             throw new \RuntimeException(implode("\r\n", $output));

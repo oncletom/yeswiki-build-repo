@@ -120,8 +120,13 @@ class Files
 
     protected function zip($srcPath, $destZipFile)
     {
+        print("Dans ZIP\n");
         $zip = new \ZipArchive;
-        $zip->open($destZipFile, \ZipArchive::CREATE);
+        $zip->open($destZipFile, \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE);
+
+        var_dump($srcPath);
+        var_dump($destZipFile);
+
         $this->zipFolder($srcPath, $zip);
         $zip->close();
         return $destZipFile;
@@ -130,20 +135,28 @@ class Files
     private function zipFolder($srcPath, $zip)
     {
         if (is_file($srcPath)) {
-            $zip->add($srcPath);
+            print("C'est un fichier : " . $srcPath . "\n\n");
+            $zip->addFile($srcPath);
+            return;
         }
 
         if (is_dir($srcPath)) {
-            $file2ignore = array('.', '..');
+            print("C'est un dossier : " . $srcPath . "\n\n");
+            $file2ignore = array('.', '..', '.git');
             $zip->addEmptyDir($srcPath);
             if ($res = opendir($srcPath)) {
                 while (($file = readdir($res)) !== false) {
                     if (!in_array($file, $file2ignore)) {
-                        $this->zipFolder($file);
+                        $fullpath = $srcPath . '/' . $file;
+                        print("Ajoute : " . $fullpath . "\n\n");
+                        $this->zipFolder($fullpath, $zip);
                     }
                 }
                 closedir($res);
             }
+            return;
         }
+
+        print("NE DEVRAIS JAMAIS ARRIVER !! " . $srcPath . "\n\n");
     }
 }
