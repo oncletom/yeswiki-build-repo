@@ -12,10 +12,12 @@ class Package extends Files
         $this->gitRepo = $gitRepo;
     }
 
-
     public function make($folder)
     {
-        return $this->makeArchive($folder);
+        $archive = $this->makeArchive($folder);
+        $this->makeMD5($archive);
+
+        return $archive;
     }
 
     private function makeArchive($folder)
@@ -35,6 +37,7 @@ class Package extends Files
     private function makeMD5($filename)
     {
         $md5 = md5_file($filename);
+        $md5 .= ' ' . basename($filename);
         return file_put_contents($filename . '.md5', $md5);
     }
 
