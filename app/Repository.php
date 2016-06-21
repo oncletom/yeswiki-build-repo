@@ -64,6 +64,28 @@ class Repository
         }
     }
 
+    /**
+     * return the json file describing the repository
+     * @return [type] [description]
+     */
+    public function makeIndex()
+    {
+        foreach ($this->packages as $version => $packages) {
+            $data = array();
+            foreach ($packages as $name => $package) {
+                // No branch in name for core package.
+                if (substr($name, 0, 7) === 'yeswiki') {
+                    $name = "yeswiki";
+                }
+                $data[$name] = $package->getinfos();
+            }
+            file_put_contents(
+                $this->localConf['repo-path'] . $version . '/packages.json',
+                json_encode($data, JSON_PRETTY_PRINT)
+            );
+        }
+    }
+
     public function makeAllPackages()
     {
         foreach ($this->packages as $version => $packages) {
@@ -79,7 +101,11 @@ class Repository
      */
     public function purge()
     {
-
+        foreach ($this->packages as $version => $packages) {
+            foreach ($packages as $package) {
+                $package->make($this->localConf['repo-path'] . $version . '/');
+            }
+        }
     }
 
 

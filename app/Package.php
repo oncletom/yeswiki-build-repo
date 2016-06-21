@@ -6,12 +6,20 @@ class Package extends Files
     public $name;
     public $gitRepo;
 
+    private $filename = "";
+    private $version = "0000-00-00-0";
+
     public function __construct($name, $gitRepo)
     {
         $this->name = $name;
         $this->gitRepo = $gitRepo;
     }
 
+    /**
+     * Generate
+     * @param  string $folder path where to put archive
+     * @return [type]         [description]
+     */
     public function make($folder)
     {
         $archive = $this->makeArchive($folder);
@@ -20,41 +28,53 @@ class Package extends Files
         return $archive;
     }
 
+    public function getInfos()
+    {
+        return array(
+            "version" => $this->version,
+            "file" => $this->filename,
+        );
+    }
+
     private function makeArchive($folder)
     {
-        $filename = $this->getFilename($folder);
+        $filename = $this->defineFilename($folder);
 
         $clonePath = $this->gitRepo->clone();
-        $this->zip($clonePath, $filename, $this->name);
+        $this->zip($clonePath, $folder . $filename, $this->name);
         //Supprime les fichiers temporaires
         $this->delete($clonePath);
 
-        $this->makeMD5($filename);
+        $this->lastFile = $filename;
 
-        return $filename;
+        return $folder . $filename;
     }
 
     private function makeMD5($filename)
     {
         $md5 = md5_file($filename);
         $md5 .= ' ' . basename($filename);
+
         return file_put_contents($filename . '.md5', $md5);
     }
 
-    private function getFilename($folder)
+    private function defineFilename($folder)
     {
-        $version = 1;
+        if ($this->filename === "") {
+            $version = 1;
 
-        $filename = $folder . $this->name . date("-Y-m-d-")
-                            . $version . '.zip';
-
-        while (file_exists($filename)) {
-            $version++;
             $filename = $folder . $this->name . date("-Y-m-d-")
                                 . $version . '.zip';
+
+            while (file_exists($filename)) {
+                $version++;
+                $filename = $folder . $this->name . date("-Y-m-d-")
+                                    . $version . '.zip';
+            }
+
+            $this->version = date("Y-m-d-") . $version;
+            $this->filename = basename($filename);
         }
-
-        return $filename;
+        return $this->filename;
     }
-
 }

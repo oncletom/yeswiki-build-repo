@@ -15,8 +15,8 @@ class Controller
         if ($this->init() === false) {
             return;
         }
+        $this->makeAllPackages();
 
-        var_dump($params);
     }
 
     private function init()
@@ -32,5 +32,6 @@ class Controller
     {
         $this->repo->genRepoTree();
         $this->repo->makeAllPackages();
+        $this->repo->makeIndex();
     }
 }
