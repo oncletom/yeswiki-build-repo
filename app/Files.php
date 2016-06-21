@@ -118,45 +118,36 @@ class Files
         return true;
     }
 
-    protected function zip($srcPath, $destZipFile)
+    protected function zip($srcPath, $destZipFile, $zipPath = null)
     {
-        print("Dans ZIP\n");
         $zip = new \ZipArchive;
         $zip->open($destZipFile, \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE);
-
-        var_dump($srcPath);
-        var_dump($destZipFile);
-
-        $this->zipFolder($srcPath, $zip);
+        $this->zipFolder($srcPath, $zip, $zipPath, $srcPath);
         $zip->close();
         return $destZipFile;
     }
 
-    private function zipFolder($srcPath, $zip)
+    private function zipFolder($srcPath, $zip, $zipPath, $originPath)
     {
+        $localName = str_replace($originPath, $zipPath, $srcPath);
+
         if (is_file($srcPath)) {
-            print("C'est un fichier : " . $srcPath . "\n\n");
-            $zip->addFile($srcPath);
+            $zip->addFile($srcPath, $localName);
             return;
         }
 
         if (is_dir($srcPath)) {
-            print("C'est un dossier : " . $srcPath . "\n\n");
             $file2ignore = array('.', '..', '.git');
-            $zip->addEmptyDir($srcPath);
             if ($res = opendir($srcPath)) {
                 while (($file = readdir($res)) !== false) {
                     if (!in_array($file, $file2ignore)) {
                         $fullpath = $srcPath . '/' . $file;
-                        print("Ajoute : " . $fullpath . "\n\n");
-                        $this->zipFolder($fullpath, $zip);
+                        $this->zipFolder($fullpath, $zip, $zipPath, $originPath);
                     }
                 }
                 closedir($res);
             }
             return;
         }
-
-        print("NE DEVRAIS JAMAIS ARRIVER !! " . $srcPath . "\n\n");
     }
 }

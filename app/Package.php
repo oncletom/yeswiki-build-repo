@@ -22,10 +22,10 @@ class Package extends Files
     {
         $filename = $folder . $this->getFilename();
 
-        $clonePath = $this->gitRepo->clone(/*'builds/' . $this->name . '/'*/);
-
-        print("ZIPAGE\n");
-        $this->zip($clonePath, $filename);
+        $clonePath = $this->gitRepo->clone();
+        $this->zip($clonePath, $filename, $this->name);
+        //Supprime les fichiers temporaires
+        $this->delete($clonePath);
 
         $this->makeMD5($filename);
 
