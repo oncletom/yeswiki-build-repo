@@ -10,14 +10,13 @@ class Controller
         $this->repo = $repo;
     }
 
-    public function run()
+    public function run($params)
     {
         if ($this->init() === false) {
             return;
         }
 
-        $this->repo->makeAllPackages();
-
+        var_dump($params);
     }
 
     private function init()
@@ -26,7 +25,12 @@ class Controller
             print('erreur chargement de la configuration des dépôts.');
             return false;
         }
-        $this->repo->genRepo();
         return true;
+    }
+
+    private function makeAllPackages()
+    {
+        $this->repo->genRepoTree();
+        $this->repo->makeAllPackages();
     }
 }

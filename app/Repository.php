@@ -29,12 +29,11 @@ class Repository
      * Create folder if needed
      * @return [type] [description]
      */
-    public function genRepo()
+    public function genRepoTree()
     {
         foreach ($this->repoConf as $version => $infos) {
             $folder = $this->localConf['repo-path'] . $version . '/';
             if (!is_dir($folder)) {
-                var_dump($folder);
                 mkdir($folder);
             }
 
@@ -68,10 +67,8 @@ class Repository
     public function makeAllPackages()
     {
         foreach ($this->packages as $version => $packages) {
-            foreach ($packages as $name => $package) {
-                $val = $package->make(
-                    $this->localConf['repo-path'] . $version . '/'
-                );
+            foreach ($packages as $package) {
+                $package->make($this->localConf['repo-path'] . $version . '/');
             }
         }
     }
@@ -80,7 +77,7 @@ class Repository
      * Purge old data
      * @return [type] [description]
      */
-    public function clean()
+    public function purge()
     {
 
     }
