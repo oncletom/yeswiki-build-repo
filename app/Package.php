@@ -22,7 +22,7 @@ class Package extends Files
 
     private function makeArchive($folder)
     {
-        $filename = $folder . $this->getFilename();
+        $filename = $this->getFilename($folder);
 
         $clonePath = $this->gitRepo->clone();
         $this->zip($clonePath, $filename, $this->name);
@@ -41,10 +41,20 @@ class Package extends Files
         return file_put_contents($filename . '.md5', $md5);
     }
 
-    private function getFilename()
+    private function getFilename($folder)
     {
-        // TODO make it seriously
-        return $this->name . '-'  .date("Y-m-d-1") . '.zip';
+        $version = 1;
+
+        $filename = $folder . $this->name . date("-Y-m-d-")
+                            . $version . '.zip';
+
+        while (file_exists($filename)) {
+            $version++;
+            $filename = $folder . $this->name . date("-Y-m-d-")
+                                . $version . '.zip';
+        }
+
+        return $filename;
     }
 
 }
