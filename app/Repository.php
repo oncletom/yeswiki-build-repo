@@ -41,7 +41,9 @@ class Repository
             $name = 'yeswiki-' . $version;
             $this->packages[$version][$name] = new Package(
                 $name,
-                new GitRepo ($infos['git-repo'], $infos['branch'])
+                new GitRepo($infos['git-repo'], $infos['branch']),
+                $infos['description'],
+                $infos['documentation']
             );
 
             // Extensions
@@ -49,7 +51,9 @@ class Repository
                 $name = 'extension-' . $extName;
                 $this->packages[$version][$name] = new Package(
                     $name,
-                    new GitRepo ($extInfos['git-repo'], $extInfos['branch'])
+                    new GitRepo($extInfos['git-repo'], $extInfos['branch']),
+                    $extInfos['description'],
+                    $extInfos['documentation']
                 );
             }
 
@@ -58,7 +62,9 @@ class Repository
                 $name = 'theme-' . $themeName;
                 $this->packages[$version][$name] = new Package(
                     $name,
-                    new GitRepo ($themeInfos['git-repo'], $themeInfos['branch'])
+                    new GitRepo($themeInfos['git-repo'], $themeInfos['branch']),
+                    $themeInfos['description'],
+                    $themeInfos['documentation']
                 );
             }
         }
@@ -94,19 +100,4 @@ class Repository
             }
         }
     }
-
-    /**
-     * Purge old data
-     * @return [type] [description]
-     */
-    public function purge()
-    {
-        foreach ($this->packages as $version => $packages) {
-            foreach ($packages as $package) {
-                $package->make($this->localConf['repo-path'] . $version . '/');
-            }
-        }
-    }
-
-
 }

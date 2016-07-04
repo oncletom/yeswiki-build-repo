@@ -5,14 +5,18 @@ class Package extends Files
 {
     public $name;
     public $gitRepo;
+    public $documentation;
+    public $description;
 
     private $filename = "";
     private $version = "0000-00-00-0";
 
-    public function __construct($name, $gitRepo)
+    public function __construct($name, $gitRepo, $description, $documentation)
     {
         $this->name = $name;
         $this->gitRepo = $gitRepo;
+        $this->description = $description;
+        $this->documentation = $documentation;
     }
 
     /**
@@ -33,6 +37,8 @@ class Package extends Files
         return array(
             "version" => $this->version,
             "file" => $this->filename,
+            "documentation" => $this->documentation,
+            "description" => $this->description,
         );
     }
 
