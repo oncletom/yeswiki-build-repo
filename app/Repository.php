@@ -43,7 +43,8 @@ class Repository
                 $name,
                 $infos['archive'],
                 $infos['description'],
-                $infos['documentation']
+                $infos['documentation'],
+                $this->localConf['composer-bin']
             );
 
             // Extensions
@@ -53,7 +54,8 @@ class Repository
                     $name,
                     $extInfos['archive'],
                     $extInfos['description'],
-                    $extInfos['documentation']
+                    $extInfos['documentation'],
+                    $this->localConf['composer-bin']
                 );
             }
 
@@ -64,7 +66,8 @@ class Repository
                     $name,
                     $themeInfos['archive'],
                     $themeInfos['description'],
-                    $themeInfos['documentation']
+                    $themeInfos['documentation'],
+                    $this->localConf['composer-bin']
                 );
             }
         }

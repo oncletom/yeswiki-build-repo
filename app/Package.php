@@ -10,15 +10,24 @@ class Package extends Files
     public $documentation;
     public $description;
 
+    private $composerPath;
+
     private $filename = null;
     private $version = self::DEFAULT_VERSION;
 
-    public function __construct($name, $archive, $description, $documentation)
+    public function __construct(
+        $name,
+        $archive,
+        $description,
+        $documentation,
+        $composerPath
+    )
     {
         $this->name = $name;
         $this->archive = $archive;
         $this->description = $description;
         $this->documentation = $documentation;
+        $this->composerPath = $composerPath;
     }
 
     /**
@@ -92,7 +101,10 @@ class Package extends Files
         $zip = new \ZipArchive;
         $zip->open($archivePath, \ZipArchive::CREATE);
 
-        $dirlist = new \RecursiveDirectoryIterator($sourcePath, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $dirlist = new \RecursiveDirectoryIterator(
+            $sourcePath,
+            \RecursiveDirectoryIterator::SKIP_DOTS
+        );
         $filelist = new \RecursiveIteratorIterator($dirlist);
         foreach ($filelist as $file) {
             $internalFile = str_replace($sourcePath . '/', "", $file);
@@ -144,8 +156,12 @@ class Package extends Files
      */
     private function composer($path)
     {
-        $command = "composer install --no-dev --optimize-autoloader --working-dir=";
-        $dirList = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $command = $this->composerPath
+            . " install --no-dev --optimize-autoloader --working-dir=";
+        $dirList = new \RecursiveDirectoryIterator(
+            $path,
+            \RecursiveDirectoryIterator::SKIP_DOTS
+        );
         $fileList = new \RecursiveIteratorIterator($dirList);
         foreach ($fileList as $file) {
             if (basename($file) === "composer.json") {
