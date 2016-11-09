@@ -36,7 +36,7 @@ class Package extends Files
         unlink($tmpArchivePath);
 
         // traitement des données (composer, etc.)
-        // TODO
+        $this->composer($pathExtractedArchive);
 
         // Construire l'archive finale
         $archive = $folder . $this->getFilename();
@@ -134,6 +134,25 @@ class Package extends Files
         $md5 .= ' ' . basename($filename);
 
         return file_put_contents($filename . '.md5', $md5);
+    }
+
+    /**
+     * Execute composer dans tous les dossier ou un fichier "composer.json" est
+     * présent.
+     * @param  string $path Dossier a passer en revue.
+     * @return string       [description]
+     */
+    private function composer($path)
+    {
+        $command = "composer install --no-dev --optimize-autoloader --working-dir=";
+        $dirList = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $fileList = new \RecursiveIteratorIterator($dirList);
+        foreach ($fileList as $file) {
+            if (basename($file) === "composer.json") {
+                print("Execute composer dans : " . dirname($file) . "\n");
+                exec($command . "\"" . dirname($file) . "\"");
+            }
+        }
     }
 
     /**
