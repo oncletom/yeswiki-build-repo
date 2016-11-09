@@ -1,1 +1,5 @@
 /vendor/
+/composer.lock
+/local.config.json
+/repo.config.json
+
