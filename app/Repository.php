@@ -34,14 +34,14 @@ class Repository
         foreach ($this->repoConf as $version => $infos) {
             $folder = $this->localConf['repo-path'] . $version . '/';
             if (!is_dir($folder)) {
-                mkdir($folder);
+                mkdir($folder, 0755, true);
             }
 
             // Core package
             $name = 'yeswiki-' . $version;
             $this->packages[$version][$name] = new Package(
                 $name,
-                new GitRepo($infos['git-repo'], $infos['branch']),
+                $infos['archive'],
                 $infos['description'],
                 $infos['documentation']
             );
@@ -51,7 +51,7 @@ class Repository
                 $name = 'extension-' . $extName;
                 $this->packages[$version][$name] = new Package(
                     $name,
-                    new GitRepo($extInfos['git-repo'], $extInfos['branch']),
+                    $extInfos['archive'],
                     $extInfos['description'],
                     $extInfos['documentation']
                 );
@@ -62,7 +62,7 @@ class Repository
                 $name = 'theme-' . $themeName;
                 $this->packages[$version][$name] = new Package(
                     $name,
-                    new GitRepo($themeInfos['git-repo'], $themeInfos['branch']),
+                    $themeInfos['archive'],
                     $themeInfos['description'],
                     $themeInfos['documentation']
                 );

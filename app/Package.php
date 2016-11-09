@@ -3,35 +3,56 @@ namespace YesWikiRepo;
 
 class Package extends Files
 {
+    const DEFAULT_VERSION = "0000-00-00-0";
+
     public $name;
-    public $gitRepo;
+    public $archive;
     public $documentation;
     public $description;
 
-    private $filename = "";
-    private $version = "0000-00-00-0";
+    private $filename = null;
+    private $version = self::DEFAULT_VERSION;
 
-    public function __construct($name, $gitRepo, $description, $documentation)
+    public function __construct($name, $archive, $description, $documentation)
     {
         $this->name = $name;
-        $this->gitRepo = $gitRepo;
+        $this->archive = $archive;
         $this->description = $description;
         $this->documentation = $documentation;
     }
 
     /**
-     * Generate
+     * Add archive to repository
      * @param  string $folder path where to put archive
      * @return [type]         [description]
      */
     public function make($folder)
     {
-        $archive = $this->makeArchive($folder);
+        //Télécharger l'archive dans un repertoire temporaire
+        $tmpArchivePath = $this->download($this->archive, $this->name . '_');
+
+        $this->renameRootFolder($tmpArchivePath);
+        $pathExtractedArchive = $this->extract($tmpArchivePath);
+        unlink($tmpArchivePath);
+
+        // traitement des données (composer, etc.)
+        // TODO
+
+        // Construire l'archive finale
+        $archive = $folder . $this->getFilename();
+        $this->buildArchive($pathExtractedArchive, $archive);
+        $this->delete($pathExtractedArchive);
+
+        // Générer le hash du fichier
         $this->makeMD5($archive);
 
         return $archive;
     }
 
+    /**
+     * Send back package's informations
+     * @return [type] [description]
+     */
     public function getInfos()
     {
         return array(
@@ -42,18 +63,69 @@ class Package extends Files
         );
     }
 
-    private function makeArchive($folder)
+    /**
+     * Extrait l'archive dans un repertoire temporaire et retourne le chemin
+     * vers ce repertoire
+     * @param  string $archive Chemin vers l'archive a extraire
+     * @return string          Dossier où a été extrait l'archive
+     */
+    private function extract($archive)
     {
-        $filename = $this->defineFilename($folder);
+        $tmpDir = $this->tmpdir($this->name . '_');
+        $zip = new \ZipArchive;
+        $zip->open($archive);
+        $zip->extractTo($tmpDir);
+        $zip->close();
+        return $tmpDir;
+    }
 
-        $clonePath = $this->gitRepo->clone();
-        $this->zip($clonePath, $folder . $filename, $this->name);
-        //Supprime les fichiers temporaires
-        $this->delete($clonePath);
+    /**
+     * Construit l'archive finale
+     * @param  string $tmpArchivePath     chemin de l'archive téléchargée depuis
+     *                                    le dépot
+     * @param  string $finalArchiveFolder Dossier dans lequel déposé l'archive
+     *                                    finale
+     * @return string                     Le chemin vers l'archive générée
+     */
+    private function buildArchive($sourcePath, $archivePath)
+    {
+        $zip = new \ZipArchive;
+        $zip->open($archivePath, \ZipArchive::CREATE);
 
-        $this->lastFile = $filename;
+        $dirlist = new \RecursiveDirectoryIterator($sourcePath, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $filelist = new \RecursiveIteratorIterator($dirlist);
+        foreach ($filelist as $file) {
+            $internalFile = str_replace($sourcePath . '/', "", $file);
+            $zip->addFile($file, $internalFile);
+        }
 
-        return $folder . $filename;
+        $zip->close();
+    }
+
+    /**
+     * Change le nom du dossier racine de l'archive
+     * @param  [type] $zip [description]
+     * @return [type]      [description]
+     */
+    private function renameRootFolder($archive)
+    {
+        $zip = new \ZipArchive;
+        if ($zip->open($archive) !== TRUE) {
+            throw new Exception("can't open archive : $archive", 1);
+        }
+
+        $oldName = substr($zip->getNameIndex(0), 0, -1);
+        $newName = explode('-', $this->name)[1];
+
+        $index = 0;
+        while($filename = $zip->getNameIndex($index)){
+            $zip->renameIndex(
+                $index,
+                str_replace($oldName, $newName, $filename)
+            );
+            $index++;
+        }
+        $zip->close();
     }
 
     private function makeMD5($filename)
@@ -64,22 +136,24 @@ class Package extends Files
         return file_put_contents($filename . '.md5', $md5);
     }
 
-    private function defineFilename($folder)
+    /**
+     * Generate final archive filename with path
+     * @param  [type] $folder [description]
+     * @return [type]         [description]
+     */
+    private function getFilename()
     {
-        if ($this->filename === "") {
+        if (is_null($this->filename)) {
             $version = 1;
 
-            $filename = $folder . $this->name . date("-Y-m-d-")
-                                . $version . '.zip';
-
+            $filename = $this->name . date("-Y-m-d-") . $version . '.zip';
             while (file_exists($filename)) {
                 $version++;
-                $filename = $folder . $this->name . date("-Y-m-d-")
-                                    . $version . '.zip';
+                $filename = $this->name . date("-Y-m-d-") . $version . '.zip';
             }
 
             $this->version = date("Y-m-d-") . $version;
-            $this->filename = basename($filename);
+            $this->filename = $filename;
         }
         return $this->filename;
     }
