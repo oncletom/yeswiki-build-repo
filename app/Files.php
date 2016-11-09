@@ -65,10 +65,11 @@ class Files
         return false;
     }
 
-    protected function download($sourceUrl)
+    protected function download($sourceUrl, $prefix = "")
     {
-        $this->downloadedFile = tempnam(sys_get_temp_dir(), $this::PREFIX_FILENAME);
-        file_put_contents($this->downloadedFile, fopen($sourceUrl, 'r'));
+        $downloadedFile = tempnam(sys_get_temp_dir(), $prefix);
+        file_put_contents($downloadedFile, fopen($sourceUrl, 'r'));
+        return $downloadedFile;
     }
 
     private function isWritableFolder($path)

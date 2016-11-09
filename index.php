@@ -10,7 +10,7 @@ if (isset($argv)) {
 
 try {
     $repo = new Repository('local.config.json');
-} catch (Exception $e) {
+} catch (\Exception $e) {
     print("Configuration file error.");
     exit;
 }

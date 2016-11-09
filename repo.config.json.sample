@@ -1,0 +1,190 @@
+{
+    "cercopitheque": {
+        "archive": "https://github.com/YesWiki/yeswiki/archive/cercopitheque.zip",
+        "branch": "cercopitheque",
+        "description": "",
+        "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentatioN",
+        "extensions": {
+            "activite": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-activite/archive/master.zip",
+                "branch": "master",
+                "description": "Récupère la liste de tous les wikis installés sur un même espace et fourni leur flux RSS",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionActivite"
+            },
+            "autoupdate": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-autoupdate/archive/master.zip",
+                "branch": "master",
+                "description": "Automatise les mise à jour.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionAutoUpdate"
+            },
+            "color": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-color/archive/master.zip",
+                "branch": "master",
+                "description": "Coloration de texte dans YesWiki. ",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionColor"
+            },
+            "duplicateur": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-duplicateur/archive/master.zip",
+                "branch": "master",
+                "description": "Copie d'un ensemble de pages wiki d'un wiki à l'autre.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionDuplicateur"
+            },
+            "ferme": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-ferme/archive/master.zip",
+                "branch": "master",
+                "description": "Interface pour gérer une ferme à wikis (installer des nouveaux wikis sur le même domaine)",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionFerme"
+            },
+            "googleanalytics": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-googleanalytics/archive/master.zip",
+                "branch": "master",
+                "description": "Installe google analytics sur votre wiki.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionGoogleanalytics"
+            },
+            "ical": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-ical/archive/master.zip",
+                "branch": "master",
+                "description": "Affiche une calendrier à partir d'un fichier ICS",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionIcal"
+            },
+            "markdown": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-markdown/archive/master.zip",
+                "branch": "master",
+                "description": "Active markdown au sein de YesWiki.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionMarkdown"
+            },
+            "notif": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-notif/archive/master.zip",
+                "branch": "master",
+                "description": "Envoie par mail les modifications d'une page.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionNotif"
+            },
+            "pdf": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-pdf/archive/master.zip",
+                "branch": "master",
+                "description": "Génére un pdf à partir d'une page wiki.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionPdf"
+            },
+            "statistique": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-statistique/archive/master.zip",
+                "branch": "master",
+                "description": "Installe un gestionnaire de statistiques pour votre wiki. ",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionStatistique"
+            }
+        },
+        "themes": {
+            "colibris": {
+                "archive": "https://github.com/YesWiki/yeswiki-themes/archive/master.zip",
+                "branch": "master",
+                "folder": "colibris",
+                "description": "",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentatioN"
+            }
+        }
+    },
+    "cercopitheque_dev": {
+        "archive": "https://github.com/YesWiki/yeswiki/archive/cercopitheque_dev.zip",
+        "branch": "cercopitheque_dev",
+        "description": "",
+        "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentatioN",
+        "extensions": {
+            "activite": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-activite/archive/master.zip",
+                "branch": "master",
+                "description": "Récupère la liste de tous les wikis installés sur un même espace et fourni leur flux RSS",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionActivite"
+            },
+            "autoupdate": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-autoupdate/archive/master.zip",
+                "branch": "master",
+                "description": "Automatise les mise à jour.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentatioN"
+            },
+            "captcha": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-captcha/archive/master.zip",
+                "branch": "master",
+                "description": "Installe un captcha lors de l'édition d'une page",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocCaptcha"
+            },
+            "color": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-color/archive/master.zip",
+                "branch": "master",
+                "description": "Coloration de texte dans YesWiki. ",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationDocumentationExtensionActivite"
+            },
+            "duplicateur": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-duplicateur/archive/master.zip",
+                "branch": "master",
+                "description": "Copie d'un ensemble de pages wiki d'un wiki à l'autre.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentatioN"
+            },
+            "ferme": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-ferme/archive/master.zip",
+                "branch": "master",
+                "description": "Interface pour gérer une ferme à wikis (installer des nouveaux wikis sur le même domaine)",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentatioN"
+            },
+            "googleanalytics": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-googleanalytics/archive/master.zip",
+                "branch": "master",
+                "description": "Installe google analytics sur votre wiki.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumenationExtensionGoogleanalytics"
+            },
+            "ical": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-ical/archive/master.zip",
+                "branch": "master",
+                "description": "Affiche une calendrier à partir d'un fichier ICS",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionIcal"
+            },
+            "markdown": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-markdown/archive/master.zip",
+                "branch": "master",
+                "description": "Active markdown au sein de YesWiki.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionMarkdown"
+            },
+            "notif": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-notif/archive/master.zip",
+                "branch": "master",
+                "description": "Envoie par mail les modifications d'une page.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionNotif"
+            },
+            "pdf": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-pdf/archive/master.zip",
+                "branch": "master",
+                "description": "Génére un pdf à partir d'une page wiki.",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionPdf"
+            },
+            "statistique": {
+                "archive": "https://github.com/YesWiki/yeswiki-extension-statistique/archive/master.zip",
+                "branch": "master",
+                "description": "Installe un gestionnaire de statistiques pour votre wiki. ",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentationExtensionStatistique"
+            }
+        },
+        "themes": {
+            "colibris": {
+                "archive": "https://github.com/YesWiki/yeswiki-themes/archive/master.zip",
+                "branch": "master",
+                "folder": "colibris",
+                "description": "",
+                "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentatioN"
+            }
+        }
+    },
+    "bachibouzouk": {
+        "archive": "https://github.com/YesWiki/yeswiki/archive/bachibouzouk.zip",
+        "branch": "bachibouzouk",
+        "description": "",
+        "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentatioN",
+        "extensions": {},
+        "themes": {}
+    },
+    "anacoluthe": {
+        "archive": "https://github.com/YesWiki/yeswiki/archive/anacoluthe.zip",
+        "branch": "anacoluthe",
+        "description": "",
+        "documentation": "http://yeswiki.net/wakka.php?wiki=DocumentatioN",
+        "extensions": {},
+        "themes": {}
+    }
+}
