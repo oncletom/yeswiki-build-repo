@@ -96,9 +96,8 @@ class Package extends Files
         $zip = new \ZipArchive;
         $zip->open($archive);
         $fileInfos = $zip->statIndex(0, \ZipArchive::FL_UNCHANGED);
-        $buildDate =  date("-Y-m-d-", $fileInfos['mtime']);
-        var_dump($buildDate);
         $zip->close();
+        return $fileInfos['mtime'];
     }
 
     /**
