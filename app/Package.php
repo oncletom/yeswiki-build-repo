@@ -51,7 +51,7 @@ class Package extends Files
         $this->composer($pathExtractedArchive);
 
         // Construire l'archive finale
-        $archive = $folder . $this->getFilename($timestamp);
+        $archive = $folder . $this->getFilename($timestamp, $folder);
         $this->buildArchive($pathExtractedArchive, $archive);
         $this->delete($pathExtractedArchive);
 
@@ -188,13 +188,13 @@ class Package extends Files
      * @param  [type] $folder [description]
      * @return [type]         [description]
      */
-    private function getFilename($timestamp)
+    private function getFilename($timestamp, $folder)
     {
         if (is_null($this->filename)) {
             $version = 1;
             $firstPartFilename = $this->name . date("-Y-m-d-", $timestamp);
             $filename = $firstPartFilename . $version . '.zip';
-            while (file_exists($filename)) {
+            while (file_exists($folder . $filename)) {
                 $version++;
                 $filename = $firstPartFilename . $version . '.zip';
             }
