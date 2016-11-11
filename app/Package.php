@@ -40,6 +40,9 @@ class Package extends Files
         //Télécharger l'archive dans un repertoire temporaire
         $tmpArchivePath = $this->download($this->archive, $this->name . '_');
 
+        // récupère la date de dernière modification
+        $timestamp = $this->getBuildTimestamp($tmpArchivePath);
+
         $this->renameRootFolder($tmpArchivePath);
         $pathExtractedArchive = $this->extract($tmpArchivePath);
         unlink($tmpArchivePath);
@@ -48,7 +51,7 @@ class Package extends Files
         $this->composer($pathExtractedArchive);
 
         // Construire l'archive finale
-        $archive = $folder . $this->getFilename();
+        $archive = $folder . $this->getFilename($timestamp);
         $this->buildArchive($pathExtractedArchive, $archive);
         $this->delete($pathExtractedArchive);
 
@@ -86,6 +89,16 @@ class Package extends Files
         $zip->extractTo($tmpDir);
         $zip->close();
         return $tmpDir;
+    }
+
+    private function getBuildTimestamp($archive)
+    {
+        $zip = new \ZipArchive;
+        $zip->open($archive);
+        $fileInfos = $zip->statIndex(0, \ZipArchive::FL_UNCHANGED);
+        $buildDate =  date("-Y-m-d-", $fileInfos['mtime']);
+        var_dump($buildDate);
+        $zip->close();
     }
 
     /**
@@ -176,18 +189,18 @@ class Package extends Files
      * @param  [type] $folder [description]
      * @return [type]         [description]
      */
-    private function getFilename()
+    private function getFilename($timestamp)
     {
         if (is_null($this->filename)) {
             $version = 1;
-
-            $filename = $this->name . date("-Y-m-d-") . $version . '.zip';
+            $firstPartFilename = $this->name . date("-Y-m-d-", $timestamp);
+            $filename = $firstPartFilename . $version . '.zip';
             while (file_exists($filename)) {
                 $version++;
-                $filename = $this->name . date("-Y-m-d-") . $version . '.zip';
+                $filename = $firstPartFilename . $version . '.zip';
             }
 
-            $this->version = date("Y-m-d-") . $version;
+            $this->version = date("Y-m-d-", $timestamp) . $version;
             $this->filename = $filename;
         }
         return $this->filename;
