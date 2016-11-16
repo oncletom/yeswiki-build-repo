@@ -12,6 +12,9 @@
             "email": "florestan.bredow@supagro.fr"
         }
     ],
+    "require": {
+        "daiko/php-files": "dev-master"
+    },
     "autoload": {
         "psr-4": {
             "YesWikiRepo\\": "app"

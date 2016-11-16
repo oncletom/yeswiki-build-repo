@@ -1,7 +1,12 @@
 <?php
 namespace YesWikiRepo;
 
-class Package extends Files
+use \ZipArchive;
+use \Files\File;
+use \RecursiveDirectoryIterator;
+use \RecursiveIteratorIterator;
+
+class Package
 {
     const DEFAULT_VERSION = "0000-00-00-0";
 
@@ -53,7 +58,7 @@ class Package extends Files
         // Construire l'archive finale
         $archive = $folder . $this->getFilename($timestamp, $folder);
         $this->buildArchive($pathExtractedArchive, $archive);
-        $this->delete($pathExtractedArchive);
+        (new File($pathExtractedArchive))->delete();
 
         // Générer le hash du fichier
         $this->makeMD5($archive);
@@ -84,7 +89,7 @@ class Package extends Files
     private function extract($archive)
     {
         $tmpDir = $this->tmpdir($this->name . '_');
-        $zip = new \ZipArchive;
+        $zip = new ZipArchive;
         $zip->open($archive);
         $zip->extractTo($tmpDir);
         $zip->close();
@@ -93,9 +98,9 @@ class Package extends Files
 
     private function getBuildTimestamp($archive)
     {
-        $zip = new \ZipArchive;
+        $zip = new ZipArchive;
         $zip->open($archive);
-        $fileInfos = $zip->statIndex(0, \ZipArchive::FL_UNCHANGED);
+        $fileInfos = $zip->statIndex(0, ZipArchive::FL_UNCHANGED);
         $zip->close();
         return $fileInfos['mtime'];
     }
@@ -110,14 +115,14 @@ class Package extends Files
      */
     private function buildArchive($sourcePath, $archivePath)
     {
-        $zip = new \ZipArchive;
-        $zip->open($archivePath, \ZipArchive::CREATE);
+        $zip = new ZipArchive;
+        $zip->open($archivePath, ZipArchive::CREATE);
 
-        $dirlist = new \RecursiveDirectoryIterator(
+        $dirlist = new RecursiveDirectoryIterator(
             $sourcePath,
-            \RecursiveDirectoryIterator::SKIP_DOTS
+            RecursiveDirectoryIterator::SKIP_DOTS
         );
-        $filelist = new \RecursiveIteratorIterator($dirlist);
+        $filelist = new RecursiveIteratorIterator($dirlist);
         foreach ($filelist as $file) {
             $internalFile = str_replace($sourcePath . '/', "", $file);
             $zip->addFile($file, $internalFile);
@@ -133,7 +138,7 @@ class Package extends Files
      */
     private function renameRootFolder($archive)
     {
-        $zip = new \ZipArchive;
+        $zip = new ZipArchive;
         if ($zip->open($archive) !== TRUE) {
             throw new Exception("can't open archive : $archive", 1);
         }
@@ -170,11 +175,11 @@ class Package extends Files
     {
         $command = $this->composerPath
             . " install --no-dev --optimize-autoloader --working-dir=";
-        $dirList = new \RecursiveDirectoryIterator(
+        $dirList = new RecursiveDirectoryIterator(
             $path,
-            \RecursiveDirectoryIterator::SKIP_DOTS
+            RecursiveDirectoryIterator::SKIP_DOTS
         );
-        $fileList = new \RecursiveIteratorIterator($dirList);
+        $fileList = new RecursiveIteratorIterator($dirList);
         foreach ($fileList as $file) {
             if (basename($file) === "composer.json") {
                 print("Execute composer dans : " . dirname($file) . "\n");
@@ -204,4 +209,22 @@ class Package extends Files
         }
         return $this->filename;
     }
+
+    private function download($sourceUrl, $prefix = "")
+    {
+        $downloadedFile = tempnam(sys_get_temp_dir(), $prefix);
+        file_put_contents($downloadedFile, fopen($sourceUrl, 'r'));
+        return $downloadedFile;
+    }
+
+    private function tmpdir($prefix = "")
+    {
+        $path = tempnam(sys_get_temp_dir(), $prefix);
+        if (is_file($path)) {
+            unlink($path);
+        }
+        mkdir($path);
+        return $path;
+    }
+
 }
