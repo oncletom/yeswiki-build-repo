@@ -196,6 +196,7 @@ class PackageBuilder
      */
     private function getFilename($packageName, $timestamp, $destDir)
     {
+        // TODO Totalement foireux c'est moche et completement sujet a des bugs
         $version = 1;
         $firstPartFilename = $packageName . '-' . $this->formatTimestamp($timestamp) . '-';
         $filename = $firstPartFilename . $version . '.zip';

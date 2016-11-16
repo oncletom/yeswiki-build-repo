@@ -42,6 +42,10 @@ class Repository
                     $this->localConf['repo-path'] . $subRepoName . '/',
                     $packageName
                 );
+                $infos['description'] =
+                    $this->repoConf[$subRepoName][$packageName]['description'];
+                $infos['documentation'] =
+                    $this->repoConf[$subRepoName][$packageName]['documentation'];
                 $this->actualState[$subRepoName][$packageName] = $infos;
             }
             // Créé le fichier d'index.
@@ -53,6 +57,32 @@ class Repository
     {
         (new File($this->localConf['repo-path']))->delete();
         mkdir($this->localConf['repo-path'], 0755, true);
+    }
+
+    public function update($packageNameToFind)
+    {
+        if (empty($this->actualState)) {
+            throw new Exception("Can't update empty repository", 1);
+        }
+
+        // Check if package exist in configuration
+        foreach ($this->repoConf as $subRepoName => $packages) {
+            foreach ($packages as $packageName => $packageInfos) {
+                if($packageName === $packageNameToFind) {
+                    $infos = $this->buildPackage(
+                        $packageInfos['archive'],
+                        $this->localConf['repo-path'] . $subRepoName . '/',
+                        $packageName
+                    );
+                    $infos['description'] =
+                        $this->repoConf[$subRepoName][$packageName]['description'];
+                    $infos['documentation'] =
+                        $this->repoConf[$subRepoName][$packageName]['documentation'];
+                    $this->actualState[$subRepoName][$packageName] = $infos;
+                    $this->actualState[$subRepoName]->write();
+                }
+            }
+        }
     }
 
     private function loadRepoConf()

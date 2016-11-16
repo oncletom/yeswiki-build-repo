@@ -24,6 +24,12 @@ class Controller
                         print($e->getMessage());
                     }
                     return;
+                case 'update':
+                    if (!isset($params['target'])) {
+                        print("Target not defined");
+                    }
+                    $this->repo->update($params['target']);
+                    return;
                 case 'purge':
                     $this->repo->purge();
                     return;
