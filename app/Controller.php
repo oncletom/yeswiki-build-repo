@@ -1,6 +1,8 @@
 <?php
 namespace YesWikiRepo;
 
+use \Exception;
+
 class Controller
 {
     private $repo;
@@ -12,25 +14,20 @@ class Controller
 
     public function run($params)
     {
-        if ($this->init() === false) {
-            return;
+        if (isset($params['action'])) {
+            $this->repo->load();
+            switch ($params['action']) {
+                case 'init':
+                    try {
+                        $this->repo->init();
+                    } catch (Exception $e) {
+                        print($e->getMessage());
+                    }
+                    return;
+                case 'clear':
+                    $this->repo->clear();
+                    return;
+            }
         }
-        $this->makeAllPackages();
-    }
-
-    private function init()
-    {
-        if ($this->repo->loadRepoConf() === false) {
-            print('erreur chargement de la configuration des dépôts.');
-            return false;
-        }
-        return true;
-    }
-
-    private function makeAllPackages()
-    {
-        $this->repo->genRepoTree();
-        $this->repo->makeAllPackages();
-        $this->repo->makeIndex();
     }
 }
