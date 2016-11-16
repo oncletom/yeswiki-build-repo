@@ -11,6 +11,8 @@ class Repository
     public $actualState = null;
     public $packages;
 
+    private $packageBuilder = null;
+
     public function __construct($configFile)
     {
         $this->packages = array();
@@ -35,8 +37,12 @@ class Repository
                 $this->localConf['repo-path'] . $subRepoName . '/packages.json'
             );
             foreach ($packages as $packageName => $package) {
-                $this->actualState[$subRepoName][$packageName] = $package;
-                // TODO construire les paquets et renseigner le statut actuel.
+                $infos = $this->buildPackage(
+                    $package['archive'],
+                    $this->localConf['repo-path'] . $subRepoName . '/',
+                    $packageName
+                );
+                $this->actualState[$subRepoName][$packageName] = $infos;
             }
             // Créé le fichier d'index.
             $this->actualState[$subRepoName]->write();
@@ -102,5 +108,15 @@ class Repository
                 $this->actualState[$subRepoName]->read();
             }
         }
+    }
+
+    private function buildPackage($sourceFile, $destDir, $packageName)
+    {
+        if ($this->packageBuilder === null) {
+            $this->packageBuilder = new PackageBuilder(
+                $this->localConf['composer-bin']
+            );
+        }
+        return $this->packageBuilder->build($sourceFile, $destDir, $packageName);
     }
 }
