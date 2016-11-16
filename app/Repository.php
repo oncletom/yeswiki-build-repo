@@ -40,12 +40,13 @@ class Repository
                 $infos = $this->buildPackage(
                     $package['archive'],
                     $this->localConf['repo-path'] . $subRepoName . '/',
-                    $packageName
+                    $packageName,
+                    $package
                 );
-                $infos['description'] =
+                /*$infos['description'] =
                     $this->repoConf[$subRepoName][$packageName]['description'];
                 $infos['documentation'] =
-                    $this->repoConf[$subRepoName][$packageName]['documentation'];
+                    $this->repoConf[$subRepoName][$packageName]['documentation'];*/
                 $this->actualState[$subRepoName][$packageName] = $infos;
             }
             // Créé le fichier d'index.
@@ -72,7 +73,8 @@ class Repository
                     $infos = $this->buildPackage(
                         $packageInfos['archive'],
                         $this->localConf['repo-path'] . $subRepoName . '/',
-                        $packageName
+                        $packageName,
+                        $this->actualState[$subRepoName][$packageName]
                     );
                     $infos['description'] =
                         $this->repoConf[$subRepoName][$packageName]['description'];
@@ -140,13 +142,18 @@ class Repository
         }
     }
 
-    private function buildPackage($sourceFile, $destDir, $packageName)
+    private function buildPackage($srcFile, $destDir, $packageName, $packageInfos)
     {
         if ($this->packageBuilder === null) {
             $this->packageBuilder = new PackageBuilder(
                 $this->localConf['composer-bin']
             );
         }
-        return $this->packageBuilder->build($sourceFile, $destDir, $packageName);
+        return $this->packageBuilder->build(
+            $srcFile,
+            $destDir,
+            $packageName,
+            $packageInfos
+        );
     }
 }

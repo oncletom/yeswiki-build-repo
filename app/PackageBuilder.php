@@ -19,12 +19,28 @@ class PackageBuilder
      * @param  string $source Source file's address for package.
      * @return array          Infos about package.
      */
-    public function build($sourceFile, $destDir, $packageName)
-    {
-        $packageInfos = array();
 
+    /**
+     * [build description]
+     * @param  string $srcFile      Source archive address
+     * @param  string $destDir      Directory where to put package
+     * @param  string $packageName  Package's name
+     * @param  array  $packageInfos previous version information.
+     * @return [type]               updated informations
+     */
+    public function build($srcFile, $destDir, $packageName, $packageInfos)
+    {
         //Télécharger l'archive dans un repertoire temporaire
-        $tmpArchiveFile = $this->download($sourceFile);
+        $tmpArchiveFile = $this->download($srcFile);
+
+        // Pas de changement : on arrete tout !
+        $srcFileMd5 = md5_file($tmpArchiveFile);
+        if (isset($packageInfos["md5SourceArchive"])
+            and $packageInfos["md5SourceArchive"] === $srcFileMd5) {
+            throw new Exception("Source archive don't change.", 1);
+        }
+
+        $packageInfos["md5SourceArchive"] = $srcFileMd5;
 
         // récupère la date de dernière modification
         $timestamp = $this->getBuildTimestamp($tmpArchiveFile);
