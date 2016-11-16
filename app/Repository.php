@@ -43,11 +43,9 @@ class Repository
                     $packageName,
                     $package
                 );
-                /*$infos['description'] =
-                    $this->repoConf[$subRepoName][$packageName]['description'];
-                $infos['documentation'] =
-                    $this->repoConf[$subRepoName][$packageName]['documentation'];*/
-                $this->actualState[$subRepoName][$packageName] = $infos;
+                if ($infos !== false) {
+                    $this->actualState[$subRepoName][$packageName] = $infos;
+                }
             }
             // Créé le fichier d'index.
             $this->actualState[$subRepoName]->write();
@@ -76,12 +74,15 @@ class Repository
                         $packageName,
                         $this->actualState[$subRepoName][$packageName]
                     );
-                    $infos['description'] =
-                        $this->repoConf[$subRepoName][$packageName]['description'];
-                    $infos['documentation'] =
-                        $this->repoConf[$subRepoName][$packageName]['documentation'];
-                    $this->actualState[$subRepoName][$packageName] = $infos;
-                    $this->actualState[$subRepoName]->write();
+                    if ($infos !== false) {
+                        // Au cas ou cela aurait été mis a jour
+                        $infos['description'] =
+                            $this->repoConf[$subRepoName][$packageName]['description'];
+                        $infos['documentation'] =
+                            $this->repoConf[$subRepoName][$packageName]['documentation'];
+                        $this->actualState[$subRepoName][$packageName] = $infos;
+                        $this->actualState[$subRepoName]->write();
+                    }
                 }
             }
         }
@@ -144,16 +145,27 @@ class Repository
 
     private function buildPackage($srcFile, $destDir, $packageName, $packageInfos)
     {
+        syslog(LOG_INFO, "Building $packageName...");
         if ($this->packageBuilder === null) {
             $this->packageBuilder = new PackageBuilder(
                 $this->localConf['composer-bin']
             );
         }
-        return $this->packageBuilder->build(
-            $srcFile,
-            $destDir,
-            $packageName,
-            $packageInfos
-        );
+        try {
+            $infos = $this->packageBuilder->build(
+                $srcFile,
+                $destDir,
+                $packageName,
+                $packageInfos
+            );
+        } catch (Exception $e) {
+            syslog(
+                LOG_ERR,
+                "Failed building $packageName  :" . $e->getMessage()
+            );
+            return false;
+        }
+        syslog(LOG_INFO, "$packageName has been build...");
+        return $infos;
     }
 }
