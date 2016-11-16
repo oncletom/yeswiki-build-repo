@@ -16,7 +16,6 @@ class Controller
             return;
         }
         $this->makeAllPackages();
-
     }
 
     private function init()

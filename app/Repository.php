@@ -5,15 +5,12 @@ class Repository
 {
     public $localConf;
     public $repoConf;
-
     public $packages;
 
-    public function __construct($confFile)
+    public function __construct($configFile)
     {
-        $fileContent = file_get_contents($confFile);
-        $this->localConf = json_decode($fileContent, true);
-
         $this->packages = array();
+        $this->localConf = $configFile;
     }
 
     public function loadRepoConf()
@@ -80,18 +77,17 @@ class Repository
     public function makeIndex()
     {
         foreach ($this->packages as $version => $packages) {
-            $data = array();
+            $indexFile = new JsonFile(
+                $this->localConf['repo-path'] . $version . '/packages.json'
+            );
             foreach ($packages as $name => $package) {
                 // No branch in name for core package.
                 if (substr($name, 0, 7) === 'yeswiki') {
                     $name = "yeswiki";
                 }
-                $data[$name] = $package->getinfos();
+                $indexFile[$name] = $package->getinfos();
             }
-            file_put_contents(
-                $this->localConf['repo-path'] . $version . '/packages.json',
-                json_encode($data, JSON_PRETTY_PRINT)
-            );
+            $indexFile->write();
         }
     }
 
