@@ -43,7 +43,7 @@ class Repository
         }
     }
 
-    public function clear()
+    public function purge()
     {
         (new File($this->localConf['repo-path']))->delete();
         mkdir($this->localConf['repo-path'], 0755, true);

@@ -24,8 +24,8 @@ class Controller
                         print($e->getMessage());
                     }
                     return;
-                case 'clear':
-                    $this->repo->clear();
+                case 'purge':
+                    $this->repo->purge();
                     return;
             }
         }
