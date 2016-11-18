@@ -28,26 +28,26 @@ class PackageBuilder
      * @param  array  $packageInfos previous version information.
      * @return [type]               updated informations
      */
-    public function build($srcFile, $destDir, $packageName, $packageInfos)
+    public function build($srcFile, $destDir, $pkgName, $pkgInfos)
     {
         //Télécharger l'archive dans un repertoire temporaire
         $tmpArchiveFile = $this->download($srcFile);
 
         // Pas de changement : on arrete tout !
         $srcFileMd5 = md5_file($tmpArchiveFile);
-        if (isset($packageInfos["md5SourceArchive"])
-            and $packageInfos["md5SourceArchive"] === $srcFileMd5) {
+        if (isset($pkgInfos["md5SourceArchive"])
+            and $pkgInfos["md5SourceArchive"] === $srcFileMd5) {
             throw new Exception("Source archive don't change.", 1);
         }
 
-        $packageInfos["md5SourceArchive"] = $srcFileMd5;
+        $pkgInfos["md5SourceArchive"] = $srcFileMd5;
 
         // récupère la date de dernière modification
         $timestamp = $this->getBuildTimestamp($tmpArchiveFile);
-        $packageInfos['version'] = $this->formatTimestamp($timestamp);
+        $pkgInfos['version'] = $this->formatTimestamp($timestamp);
 
         // renome le dossier racine de l'archive
-        $this->renameRootFolder($tmpArchiveFile, $packageName);
+        $this->renameRootFolder($tmpArchiveFile, $pkgName);
 
         // Extrait l'archive
         $extractedArchiveDir = $this->extract($tmpArchiveFile);
@@ -57,20 +57,27 @@ class PackageBuilder
         // TODO uniquement pour les extension...
         $this->composer($extractedArchiveDir);
 
+        $version = 1;
+        if (isset($pkgInfos['file'])) {
+            $version = $this->extractReleaseVersion($pkgInfos['file']) + 1;
+        }
+        $pkgInfos['version'] .= '-' . $version;
+
         // Construire l'archive finale
-        $packageInfos['file'] = $this->getFilename(
-            $packageName,
+        $pkgInfos['file'] = $this->getFilename(
+            $pkgName,
             $timestamp,
-            $destDir
+            $version
         );
-        $archiveFile = $destDir . $packageInfos['file'];
+        $archiveFile = $destDir . $pkgInfos['file'];
+
         $this->buildArchive($extractedArchiveDir, $archiveFile);
         (new File($extractedArchiveDir))->delete($extractedArchiveDir);
 
         // Générer le hash du fichier
         $this->makeMD5($archiveFile);
 
-        return $packageInfos;
+        return $pkgInfos;
     }
 
     /**
@@ -210,16 +217,12 @@ class PackageBuilder
      * @param  [type] $destDir [description]
      * @return [type]         [description]
      */
-    private function getFilename($packageName, $timestamp, $destDir)
+    private function getFilename($pkgName, $timestamp, $version)
     {
         // TODO Totalement foireux c'est moche et completement sujet a des bugs
-        $version = 1;
-        $firstPartFilename = $packageName . '-' . $this->formatTimestamp($timestamp) . '-';
-        $filename = $firstPartFilename . $version . '.zip';
-        while (file_exists($destDir . $filename)) {
-            $version++;
-            $filename = $firstPartFilename . $version . '.zip';
-        }
+        $filename = $pkgName . '-'
+            . $this->formatTimestamp($timestamp) . '-'
+            . $version . '.zip';
         return $filename;
     }
 
@@ -233,5 +236,13 @@ class PackageBuilder
         $md5 = md5_file($filename);
         $md5 .= ' ' . basename($filename);
         return file_put_contents($filename . '.md5', $md5);
+    }
+
+    private function extractReleaseVersion($filename)
+    {
+        // Supprime l'extension
+        $filename = substr($filename, 0, (iconv_strlen('.zip') * -1));
+        $explodedFilename = explode('-', $filename);
+        return end($explodedFilename);
     }
 }
