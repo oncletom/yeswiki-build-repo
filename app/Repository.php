@@ -31,6 +31,8 @@ class Repository
             throw new Exception("Can't init unempty repository", 1);
         }
 
+        syslog(LOG_INFO, "Initialising repository.");
+
         foreach ($this->repoConf as $subRepoName => $packages) {
             mkdir($this->localConf['repo-path'] . $subRepoName, 0755, true);
             $this->actualState[$subRepoName] = new JsonFile(
@@ -54,6 +56,7 @@ class Repository
 
     public function purge()
     {
+        syslog(LOG_INFO, "Purging repository.");
         (new File($this->localConf['repo-path']))->delete();
         mkdir($this->localConf['repo-path'], 0755, true);
     }
@@ -161,11 +164,11 @@ class Repository
         } catch (Exception $e) {
             syslog(
                 LOG_ERR,
-                "Failed building $packageName  :" . $e->getMessage()
+                "Failed building $packageName : " . $e->getMessage()
             );
             return false;
         }
-        syslog(LOG_INFO, "$packageName has been build...");
+        syslog(LOG_INFO, "$packageName has been built...");
         return $infos;
     }
 }
