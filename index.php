@@ -3,16 +3,15 @@ namespace YesWikiRepo;
 
 $loader = require __DIR__ . '/vendor/autoload.php';
 
+openlog('[YesWikiRepo] ', LOG_CONS|LOG_PERROR, LOG_SYSLOG);
+
 // Load command line parameters to $_GET
 if (isset($argv)) {
     parse_str(implode('&', array_slice($argv, 1)), $_GET);
 }
 
-try {
-    $repo = new Repository('local.config.json');
-} catch (\Exception $e) {
-    print("Configuration file error.");
-    exit;
-}
+$configFile = new JsonFile('local.config.json');
+$configFile->read();
+$repo = new Repository($configFile);
 
 (new Controller($repo))->run($_GET);

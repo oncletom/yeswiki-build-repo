@@ -1,106 +1,174 @@
 <?php
 namespace YesWikiRepo;
 
+use \Files\File;
+use \Exception;
+
 class Repository
 {
     public $localConf;
-    public $repoConf;
-
+    public $repoConf = null;
+    public $actualState = null;
     public $packages;
 
-    public function __construct($confFile)
-    {
-        $fileContent = file_get_contents($confFile);
-        $this->localConf = json_decode($fileContent, true);
+    private $packageBuilder = null;
 
+    public function __construct($configFile)
+    {
         $this->packages = array();
+        $this->localConf = $configFile;
     }
 
-    public function loadRepoConf()
+    public function load()
     {
-        $fileContent = file_get_contents($this->localConf['config-address']);
-        if ($fileContent === false) {
-            return false;
+        $this->loadRepoConf();
+        $this->loadLocalState();
+    }
+
+    public function init()
+    {
+        if (!empty($this->actualState)) {
+            throw new Exception("Can't init unempty repository", 1);
         }
-        $this->repoConf = json_decode($fileContent, true);
+
+        syslog(LOG_INFO, "Initialising repository.");
+
+        foreach ($this->repoConf as $subRepoName => $packages) {
+            mkdir($this->localConf['repo-path'] . $subRepoName, 0755, true);
+            $this->actualState[$subRepoName] = new JsonFile(
+                $this->localConf['repo-path'] . $subRepoName . '/packages.json'
+            );
+            foreach ($packages as $packageName => $package) {
+                $infos = $this->buildPackage(
+                    $package['archive'],
+                    $this->localConf['repo-path'] . $subRepoName . '/',
+                    $packageName,
+                    $package
+                );
+                if ($infos !== false) {
+                    $this->actualState[$subRepoName][$packageName] = $infos;
+                }
+            }
+            // Créé le fichier d'index.
+            $this->actualState[$subRepoName]->write();
+        }
     }
 
-    /**
-     * Create folder if needed
-     * @return [type] [description]
-     */
-    public function genRepoTree()
+    public function purge()
     {
-        foreach ($this->repoConf as $version => $infos) {
-            $folder = $this->localConf['repo-path'] . $version . '/';
-            if (!is_dir($folder)) {
-                mkdir($folder, 0755, true);
+        syslog(LOG_INFO, "Purging repository.");
+        (new File($this->localConf['repo-path']))->delete();
+        mkdir($this->localConf['repo-path'], 0755, true);
+    }
+
+    public function update($packageNameToFind)
+    {
+        if (empty($this->actualState)) {
+            throw new Exception("Can't update empty repository", 1);
+        }
+
+        // Check if package exist in configuration
+        foreach ($this->repoConf as $subRepoName => $packages) {
+            foreach ($packages as $packageName => $packageInfos) {
+                if($packageName === $packageNameToFind) {
+                    $infos = $this->buildPackage(
+                        $packageInfos['archive'],
+                        $this->localConf['repo-path'] . $subRepoName . '/',
+                        $packageName,
+                        $this->actualState[$subRepoName][$packageName]
+                    );
+                    if ($infos !== false) {
+                        // Au cas ou cela aurait été mis a jour
+                        $infos['description'] =
+                            $this->repoConf[$subRepoName][$packageName]['description'];
+                        $infos['documentation'] =
+                            $this->repoConf[$subRepoName][$packageName]['documentation'];
+                        $this->actualState[$subRepoName][$packageName] = $infos;
+                        $this->actualState[$subRepoName]->write();
+                    }
+                }
+            }
+        }
+    }
+
+    private function loadRepoConf()
+    {
+        $repoConf = new JsonFile($this->localConf['config-address']);
+        $repoConf->read();
+        foreach ($repoConf as $subRepoName => $subRepoContent) {
+            $this->repoConf[$subRepoName] = new JsonFile(
+                $this->localConf['repo-path'] . $subRepoName . '/packages.json'
+            );
+            $packageName = 'yeswiki-' . $subRepoName;
+            $this->repoConf[$subRepoName][$packageName] = array(
+                'archive' => $subRepoContent['archive'],
+                'branch' => $subRepoContent['branch'],
+                'documentation' => $subRepoContent['documentation'],
+                'description' => $subRepoContent['description'],
+            );
+
+            foreach ($subRepoContent['extensions'] as $extName => $extInfos) {
+                $packageName = 'extension-' . $extName;
+                $this->repoConf[$subRepoName][$packageName] = array(
+                    'archive' => $extInfos['archive'],
+                    'branch' => $extInfos['branch'],
+                    'documentation' => $extInfos['documentation'],
+                    'description' => $extInfos['description'],
+                );
             }
 
-            // Core package
-            $name = 'yeswiki-' . $version;
-            $this->packages[$version][$name] = new Package(
-                $name,
-                $infos['archive'],
-                $infos['description'],
-                $infos['documentation'],
+            foreach ($subRepoContent['themes'] as $themeName => $themeInfos) {
+                $packageName = 'themes-' . $themeName;
+                $this->repoConf[$subRepoName][$packageName] = array(
+                    'archive' => $themeInfos['archive'],
+                    'branch' => $themeInfos['branch'],
+                    'documentation' => $themeInfos['documentation'],
+                    'description' => $themeInfos['description'],
+                );
+            }
+        }
+    }
+
+    private function loadLocalState()
+    {
+        $dirlist = new \RecursiveDirectoryIterator(
+            $this->localConf['repo-path'],
+            \RecursiveDirectoryIterator::SKIP_DOTS
+        );
+        $filelist = new \RecursiveIteratorIterator($dirlist);
+        $this->actualState = array();
+        foreach ($filelist as $file) {
+            if (basename($file) === 'packages.json') {
+                $subRepoName = basename(dirname($file));
+                $this->actualState[$subRepoName] = new JsonFile($file);
+                $this->actualState[$subRepoName]->read();
+            }
+        }
+    }
+
+    private function buildPackage($srcFile, $destDir, $packageName, $packageInfos)
+    {
+        syslog(LOG_INFO, "Building $packageName...");
+        if ($this->packageBuilder === null) {
+            $this->packageBuilder = new PackageBuilder(
                 $this->localConf['composer-bin']
             );
-
-            // Extensions
-            foreach ($infos['extensions'] as $extName => $extInfos) {
-                $name = 'extension-' . $extName;
-                $this->packages[$version][$name] = new Package(
-                    $name,
-                    $extInfos['archive'],
-                    $extInfos['description'],
-                    $extInfos['documentation'],
-                    $this->localConf['composer-bin']
-                );
-            }
-
-            // Themes
-            foreach ($infos['themes'] as $themeName => $themeInfos) {
-                $name = 'theme-' . $themeName;
-                $this->packages[$version][$name] = new Package(
-                    $name,
-                    $themeInfos['archive'],
-                    $themeInfos['description'],
-                    $themeInfos['documentation'],
-                    $this->localConf['composer-bin']
-                );
-            }
         }
-    }
-
-    /**
-     * return the json file describing the repository
-     * @return [type] [description]
-     */
-    public function makeIndex()
-    {
-        foreach ($this->packages as $version => $packages) {
-            $data = array();
-            foreach ($packages as $name => $package) {
-                // No branch in name for core package.
-                if (substr($name, 0, 7) === 'yeswiki') {
-                    $name = "yeswiki";
-                }
-                $data[$name] = $package->getinfos();
-            }
-            file_put_contents(
-                $this->localConf['repo-path'] . $version . '/packages.json',
-                json_encode($data, JSON_PRETTY_PRINT)
+        try {
+            $infos = $this->packageBuilder->build(
+                $srcFile,
+                $destDir,
+                $packageName,
+                $packageInfos
             );
+        } catch (Exception $e) {
+            syslog(
+                LOG_ERR,
+                "Failed building $packageName : " . $e->getMessage()
+            );
+            return false;
         }
-    }
-
-    public function makeAllPackages()
-    {
-        foreach ($this->packages as $version => $packages) {
-            foreach ($packages as $package) {
-                $package->make($this->localConf['repo-path'] . $version . '/');
-            }
-        }
+        syslog(LOG_INFO, "$packageName has been built...");
+        return $infos;
     }
 }
