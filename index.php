@@ -3,7 +3,7 @@ namespace YesWikiRepo;
 
 $loader = require __DIR__ . '/vendor/autoload.php';
 
-openlog('[YesWikiRepo] ', 0, LOG_USER);
+openlog('[YesWikiRepo] ', LOG_CONS|LOG_PERROR, LOG_SYSLOG);
 
 // Load command line parameters to $_GET
 if (isset($argv)) {
