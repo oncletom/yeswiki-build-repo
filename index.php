@@ -11,13 +11,24 @@ set_exception_handler(function($e) {
 
 openlog('[YesWikiRepo] ', LOG_CONS|LOG_PERROR, LOG_SYSLOG);
 
-// Load command line parameters to $_GET
-if (isset($argv)) {
-    parse_str(implode('&', array_slice($argv, 1)), $_GET);
-}
-
 $configFile = new JsonFile('local.config.json');
 $configFile->read();
 $repo = new Repository($configFile);
 
-(new ScriptController($repo))->run($_GET);
+// WebHook
+$request = new HttpRequest($_SERVER);
+if ($request->isHook()) {
+    (new WebhookController($repo))->run($request->getContent());
+    exit;
+}
+
+// Command line
+if (isset($argv)) {
+    $params = array();
+    parse_str(implode('&', array_slice($argv, 1)), $params);
+    (new ScriptController($repo))->run($params);
+    exit;
+}
+
+// Oups...
+throw new \Exception("Bad request.", 1);
