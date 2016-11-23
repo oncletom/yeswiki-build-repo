@@ -11,13 +11,25 @@ set_exception_handler(function($e) {
 
 openlog('[YesWikiRepo] ', LOG_CONS|LOG_PERROR, LOG_SYSLOG);
 
-// Load command line parameters to $_GET
-if (isset($argv)) {
-    parse_str(implode('&', array_slice($argv, 1)), $_GET);
-}
-
 $configFile = new JsonFile('local.config.json');
 $configFile->read();
 $repo = new Repository($configFile);
 
-(new ScriptController($repo))->run($_GET);
+if (isset($_SERVER['HTTP_CONTENT_TYPE'])
+    and isset($_SERVER['HTTP_X_GITHUB_EVENT'])) {
+    $params = json_decode(file_get_contents('php://input'), true);
+    if ($params === false) {
+        throw new \Exception("Error reading webhook", 1);
+
+    }
+    (new WebhookController($repo))->run($params);
+}
+
+// Load command line parameters to $_GET
+if (isset($argv)) {
+    $params = array();
+    parse_str(implode('&', array_slice($argv, 1)), $params);
+    (new ScriptController($repo))->run($params);
+}
+
+throw new \Exception("Bad request.", 1);
