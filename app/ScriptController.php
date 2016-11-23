@@ -3,15 +3,8 @@ namespace YesWikiRepo;
 
 use \Exception;
 
-class ScriptController
+class ScriptController extends Controller
 {
-    private $repo;
-
-    public function __construct($repo)
-    {
-        $this->repo = $repo;
-    }
-
     public function run($params)
     {
         if (isset($params['action'])) {
