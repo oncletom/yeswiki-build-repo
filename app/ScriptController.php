@@ -11,15 +11,11 @@ class ScriptController extends Controller
             $this->repo->load();
             switch ($params['action']) {
                 case 'init':
-                    try {
-                        $this->repo->init();
-                    } catch (Exception $e) {
-                        print($e->getMessage());
-                    }
+                    $this->repo->init();
                     return;
                 case 'update':
                     if (!isset($params['target'])) {
-                        print("Target not defined");
+                        throw new Exception("Target not defined", 1);
                     }
                     $this->repo->update($params['target']);
                     return;
