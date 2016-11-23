@@ -14,4 +14,4 @@ $configFile = new JsonFile('local.config.json');
 $configFile->read();
 $repo = new Repository($configFile);
 
-(new Controller($repo))->run($_GET);
+(new ScriptController($repo))->run($_GET);

@@ -3,7 +3,7 @@ namespace YesWikiRepo;
 
 use \Exception;
 
-class Controller
+class ScriptController
 {
     private $repo;
 
