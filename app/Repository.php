@@ -118,7 +118,7 @@ class Repository
             }
 
             foreach ($subRepoContent['themes'] as $themeName => $themeInfos) {
-                $packageName = 'themes-' . $themeName;
+                $packageName = 'theme-' . $themeName;
                 $this->repoConf[$subRepoName][$packageName] = array(
                     'archive' => $themeInfos['archive'],
                     'branch' => $themeInfos['branch'],
