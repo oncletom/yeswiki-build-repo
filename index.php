@@ -16,7 +16,7 @@ $configFile->read();
 $repo = new Repository($configFile);
 
 // WebHook
-$request = new HttpRequest($_SERVER);
+$request = new HttpRequest($_SERVER, $_POST);
 if ($request->isHook()) {
     (new WebhookController($repo))->run($request->getContent());
     exit;
