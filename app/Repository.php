@@ -91,6 +91,37 @@ class Repository
         }
     }
 
+    public function updateHook($repositoryUrl, $branch)
+    {
+        if (empty($this->actualState)) {
+            throw new Exception("Can't update empty repository", 1);
+        }
+
+        foreach ($this->repoConf as $subRepoName => $packages) {
+            foreach ($packages as $packageName => $packageInfos) {
+                if ($packageInfos['repository'] === $repositoryUrl
+                    and $packageInfos['branch'] === $branch
+                ) {
+                    $infos = $this->buildPackage(
+                        $this->getArchiveUrl($packageInfos),
+                        $this->localConf['repo-path'] . $subRepoName . '/',
+                        $packageName,
+                        $this->actualState[$subRepoName][$packageName]
+                    );
+                    if ($infos !== false) {
+                        // Au cas ou cela aurait été mis a jour
+                        $infos['description'] =
+                            $this->repoConf[$subRepoName][$packageName]['description'];
+                        $infos['documentation'] =
+                            $this->repoConf[$subRepoName][$packageName]['documentation'];
+                        $this->actualState[$subRepoName][$packageName] = $infos;
+                        $this->actualState[$subRepoName]->write();
+                    }
+                }
+            }
+        }
+    }
+
     private function loadRepoConf()
     {
         $repoConf = new JsonFile($this->localConf['config-address']);
@@ -118,7 +149,7 @@ class Repository
             }
 
             foreach ($subRepoContent['themes'] as $themeName => $themeInfos) {
-                $packageName = 'themes-' . $themeName;
+                $packageName = 'theme-' . $themeName;
                 $this->repoConf[$subRepoName][$packageName] = array(
                     'repository' => $themeInfos['repository'],
                     'branch' => $themeInfos['branch'],
