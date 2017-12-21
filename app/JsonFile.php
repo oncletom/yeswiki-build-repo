@@ -15,7 +15,20 @@ class JsonFile extends Collection
 
     public function read()
     {
-        $indexFileContent = file_get_contents($this->file);
+        // test if the file is on a url or not
+        if (filter_var($this->file, FILTER_VALIDATE_URL) === false) {
+            // local file
+            $indexFileContent = file_get_contents($this->file);
+        } else {
+            // url
+            $curlSession = curl_init();
+            curl_setopt($curlSession, CURLOPT_URL, $this->file);
+            curl_setopt($curlSession, CURLOPT_BINARYTRANSFER, true);
+            curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, true);
+            $indexFileContent = curl_exec($curlSession);
+            curl_close($curlSession);
+        }
+
         if ($indexFileContent === false) {
             throw new Exception("Error loading json file : " . $this->file, 1);
         }
