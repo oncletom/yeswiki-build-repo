@@ -40,7 +40,7 @@ class Repository
             );
             foreach ($packages as $packageName => $package) {
                 $infos = $this->buildPackage(
-                    $package['archive'],
+                    $this->getArchiveUrl($package),
                     $this->localConf['repo-path'] . $subRepoName . '/',
                     $packageName,
                     $package
@@ -72,7 +72,38 @@ class Repository
             foreach ($packages as $packageName => $packageInfos) {
                 if($packageName === $packageNameToFind) {
                     $infos = $this->buildPackage(
-                        $packageInfos['archive'],
+                        $this->getArchiveUrl($packageInfos),
+                        $this->localConf['repo-path'] . $subRepoName . '/',
+                        $packageName,
+                        $this->actualState[$subRepoName][$packageName]
+                    );
+                    if ($infos !== false) {
+                        // Au cas ou cela aurait été mis a jour
+                        $infos['description'] =
+                            $this->repoConf[$subRepoName][$packageName]['description'];
+                        $infos['documentation'] =
+                            $this->repoConf[$subRepoName][$packageName]['documentation'];
+                        $this->actualState[$subRepoName][$packageName] = $infos;
+                        $this->actualState[$subRepoName]->write();
+                    }
+                }
+            }
+        }
+    }
+
+    public function updateHook($repositoryUrl, $branch)
+    {
+        if (empty($this->actualState)) {
+            throw new Exception("Can't update empty repository", 1);
+        }
+
+        foreach ($this->repoConf as $subRepoName => $packages) {
+            foreach ($packages as $packageName => $packageInfos) {
+                if ($packageInfos['repository'] === $repositoryUrl
+                    and $packageInfos['branch'] === $branch
+                ) {
+                    $infos = $this->buildPackage(
+                        $this->getArchiveUrl($packageInfos),
                         $this->localConf['repo-path'] . $subRepoName . '/',
                         $packageName,
                         $this->actualState[$subRepoName][$packageName]
@@ -101,7 +132,7 @@ class Repository
             );
             $packageName = 'yeswiki-' . $subRepoName;
             $this->repoConf[$subRepoName][$packageName] = array(
-                'archive' => $subRepoContent['archive'],
+                'repository' => $subRepoContent['repository'],
                 'branch' => $subRepoContent['branch'],
                 'documentation' => $subRepoContent['documentation'],
                 'description' => $subRepoContent['description'],
@@ -110,7 +141,7 @@ class Repository
             foreach ($subRepoContent['extensions'] as $extName => $extInfos) {
                 $packageName = 'extension-' . $extName;
                 $this->repoConf[$subRepoName][$packageName] = array(
-                    'archive' => $extInfos['archive'],
+                    'repository' => $extInfos['repository'],
                     'branch' => $extInfos['branch'],
                     'documentation' => $extInfos['documentation'],
                     'description' => $extInfos['description'],
@@ -120,7 +151,7 @@ class Repository
             foreach ($subRepoContent['themes'] as $themeName => $themeInfos) {
                 $packageName = 'theme-' . $themeName;
                 $this->repoConf[$subRepoName][$packageName] = array(
-                    'archive' => $themeInfos['archive'],
+                    'repository' => $themeInfos['repository'],
                     'branch' => $themeInfos['branch'],
                     'documentation' => $themeInfos['documentation'],
                     'description' => $themeInfos['description'],
@@ -170,5 +201,13 @@ class Repository
         }
         syslog(LOG_INFO, "$packageName has been built...");
         return $infos;
+    }
+
+    private function getArchiveUrl($pkgInfos)
+    {
+        return $pkgInfos['repository']
+            . '/archive/'
+            . $pkgInfos['branch']
+            . '.zip';
     }
 }
