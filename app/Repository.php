@@ -59,6 +59,7 @@ class Repository
         syslog(LOG_INFO, "Purging repository.");
         (new File($this->localConf['repo-path']))->delete();
         mkdir($this->localConf['repo-path'], 0755, true);
+
     }
 
     public function update($packageNameToFind)
@@ -131,8 +132,11 @@ class Repository
                 $this->localConf['repo-path'] . $subRepoName . '/packages.json'
             );
             $packageName = 'yeswiki-' . $subRepoName;
+            $rep = explode('/archive', $subRepoContent['archive']);
+            $subRepoContent['repository'] = $rep[0];
             $this->repoConf[$subRepoName][$packageName] = array(
                 'repository' => $subRepoContent['repository'],
+                'archive' => $subRepoContent['archive'],
                 'branch' => $subRepoContent['branch'],
                 'documentation' => $subRepoContent['documentation'],
                 'description' => $subRepoContent['description'],
@@ -141,17 +145,18 @@ class Repository
             foreach ($subRepoContent['extensions'] as $extName => $extInfos) {
                 $packageName = 'extension-' . $extName;
                 $this->repoConf[$subRepoName][$packageName] = array(
-                    'repository' => $extInfos['repository'],
+                    'repository' => $extInfos['archive'],
+                    'archive' => $extInfos['archive'],
                     'branch' => $extInfos['branch'],
                     'documentation' => $extInfos['documentation'],
                     'description' => $extInfos['description'],
                 );
             }
-
             foreach ($subRepoContent['themes'] as $themeName => $themeInfos) {
                 $packageName = 'theme-' . $themeName;
                 $this->repoConf[$subRepoName][$packageName] = array(
-                    'repository' => $themeInfos['repository'],
+                    'repository' => $extInfos['archive'],
+                    'archive' => $themeInfos['archive'],
                     'branch' => $themeInfos['branch'],
                     'documentation' => $themeInfos['documentation'],
                     'description' => $themeInfos['description'],

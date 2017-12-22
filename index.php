@@ -28,6 +28,9 @@ if (isset($argv)) {
     parse_str(implode('&', array_slice($argv, 1)), $params);
     (new ScriptController($repo))->run($params);
     exit;
+} elseif(isset($_GET['action'])) {
+    (new ScriptController($repo))->run($_GET);
+    exit;
 }
 
 // Oups...
