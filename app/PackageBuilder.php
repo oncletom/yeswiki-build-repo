@@ -119,10 +119,9 @@ class PackageBuilder
             throw new Exception("can't open archive : $archiveFile", 1);
         }
 
-        // TODO Bug potentiel avec les extension ayant plusieur tirets dans le
-        // nom
         $oldName = substr($zip->getNameIndex(0), 0, -1);
-        $newName = explode('-', $packageName)[1];
+        $namePlusDate =  explode('-', $packageName, 2)[1];
+        $newName = preg_replace('/-\d*-\d*-\d*-\d*$/', '', $namePlusDate);
 
         $index = 0;
         while($filename = $zip->getNameIndex($index)){
