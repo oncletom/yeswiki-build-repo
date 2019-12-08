@@ -139,8 +139,8 @@ class Repository
                 'branch' => $subRepoContent['branch'],
                 'documentation' => $subRepoContent['documentation'],
                 'description' => $subRepoContent['description'],
-                'extra-tools' => $subRepoContent['extra-tools'] ? $subRepoContent['extra-tools'] : [],
-                'extra-themes' => $subRepoContent['extra-themes'] ? $subRepoContent['extra-themes'] : [],
+                'extra-tools' => empty($subRepoContent['extra-tools']) ? $subRepoContent['extra-tools'] : [],
+                'extra-themes' => empty($subRepoContent['extra-themes']) ? $subRepoContent['extra-themes'] : [],
             );
 
             foreach ($subRepoContent['extensions'] as $extName => $extInfos) {
