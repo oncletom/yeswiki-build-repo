@@ -32,12 +32,11 @@ class PackageBuilder
     {
         //Télécharger l'archive dans un repertoire temporaire
         $tmpArchiveFile = $this->download($srcFile);
-
         // Pas de changement : on arrete tout !
         $srcFileMd5 = md5_file($tmpArchiveFile);
         if (isset($pkgInfos["md5SourceArchive"])
             and $pkgInfos["md5SourceArchive"] === $srcFileMd5) {
-            throw new Exception("Source archive don't change.", 1);
+            throw new Exception("Source archive did not change.", 1);
         }
 
         $pkgInfos["md5SourceArchive"] = $srcFileMd5;
@@ -62,6 +61,40 @@ class PackageBuilder
             $version = $this->extractReleaseVersion($pkgInfos['file']) + 1;
         }
         $pkgInfos['version'] .= '-' . $version;
+
+        if ($pkgInfos['repository'] == 'https://github.com/YesWiki/yeswiki') {
+            $yeswikiVersion = str_replace('yeswiki-', '', $pkgName);
+            // ajout des tools suplémentaires
+            if (!empty($pkgInfos['extra-tools'])) {
+                foreach ($pkgInfos['extra-tools'] as $nametool => $tool) {
+                    $toolArchiveFile = $this->download($tool['archive']);
+                    $extractedtool = $this->extract($toolArchiveFile);
+                    rename(
+                        $extractedtool.'/yeswiki-extension-'.$nametool.'-'.$tool['branch'],
+                        $extractedArchiveDir.'/'.$yeswikiVersion.'/tools/'.$nametool
+                    );
+                    unlink($toolArchiveFile);
+                }
+            }
+            // ajout des themes suplémentaires
+            if (!empty($pkgInfos['extra-themes'])) {
+                foreach ($pkgInfos['extra-themes'] as $nametheme => $theme) {
+                    $themeArchiveFile = $this->download($theme['archive']);
+                    $extractedtheme = $this->extract($themeArchiveFile);
+                    rename(
+                        $extractedtheme.'/yeswiki-theme-'.$nametheme.'-'.$theme['branch'],
+                        $extractedArchiveDir.'/'.$yeswikiVersion.'/themes/'.$nametheme
+                    );
+                    unlink($themeArchiveFile);
+                }
+            }
+
+            // change YesWiki version in the files
+            $file = file_get_contents($extractedArchiveDir.'/'.$yeswikiVersion.'/includes/constants.php');
+            $file = preg_replace('/define\("YESWIKI_VERSION", .*\);/Ui', 'define("YESWIKI_VERSION", \''.$yeswikiVersion.'\');', $file);
+            $file = preg_replace('/define\("YESWIKI_RELEASE", .*\);/Ui', 'define("YESWIKI_RELEASE", \''.$this->formatTimestamp($timestamp).'-'.$version.'\');', $file);
+            file_put_contents($extractedArchiveDir.'/'.$yeswikiVersion.'/includes/constants.php', $file);
+        }
 
         // Construire l'archive finale
         $pkgInfos['file'] = $this->getFilename(
@@ -115,7 +148,7 @@ class PackageBuilder
     private function renameRootFolder($archiveFile, $packageName)
     {
         $zip = new ZipArchive;
-        if ($zip->open($archiveFile) !== TRUE) {
+        if ($zip->open($archiveFile) !== true) {
             throw new Exception("can't open archive : $archiveFile", 1);
         }
 
@@ -124,7 +157,7 @@ class PackageBuilder
         $newName = preg_replace('/-\d*-\d*-\d*-\d*$/', '', $namePlusDate);
 
         $index = 0;
-        while($filename = $zip->getNameIndex($index)){
+        while ($filename = $zip->getNameIndex($index)) {
             $zip->renameIndex(
                 $index,
                 str_replace($oldName, $newName, $filename)

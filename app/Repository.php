@@ -59,7 +59,6 @@ class Repository
         syslog(LOG_INFO, "Purging repository.");
         (new File($this->localConf['repo-path']))->delete();
         mkdir($this->localConf['repo-path'], 0755, true);
-
     }
 
     public function update($packageNameToFind)
@@ -71,7 +70,7 @@ class Repository
         // Check if package exist in configuration
         foreach ($this->repoConf as $subRepoName => $packages) {
             foreach ($packages as $packageName => $packageInfos) {
-                if($packageName === $packageNameToFind) {
+                if ($packageName === $packageNameToFind) {
                     $infos = $this->buildPackage(
                         $this->getArchiveUrl($packageInfos),
                         $this->localConf['repo-path'] . $subRepoName . '/',
@@ -140,6 +139,8 @@ class Repository
                 'branch' => $subRepoContent['branch'],
                 'documentation' => $subRepoContent['documentation'],
                 'description' => $subRepoContent['description'],
+                'extra-tools' => $subRepoContent['extra-tools'],
+                'extra-themes' => $subRepoContent['extra-themes'],
             );
 
             foreach ($subRepoContent['extensions'] as $extName => $extInfos) {
