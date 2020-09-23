@@ -1,26 +1,27 @@
 name: 'yeswiki-build-repo'
 description: 'Build script to package [YesWiki] **extensions** and **themes**.'
+branding:
+  icon: 'package'
+  color: 'yellow'
 inputs:
   extension-dir:
     description: 'Extension directory to test and package.'
     required: true
-    default: ${{ github.workspace }}
+    default: /github/workspace
   output-dir:
     description: 'Path to extract shasum and zipped archive to.'
     required: false
     default: /tmp
   extension-name:
-    description: 'Path to extract shasum and zipped archive to.'
+    description: 'YesWiki extension name (eg: yeswiki-extension-publication)'
     required: false
-    default: ${{ github.repository }}
   extension-version:
-    description: 'Path to extract shasum and zipped archive to.'
+    description: 'YesWiki extension version (eg: 2020-06-12)'
     required: false
-    default: ${{ github.ref.replace('/refs/tags/', '') }}
 outputs:
   md5sum:
     description: 'Package integrity signature.'
-  md5sum:
+  archive-name:
     description: 'Package integrity signature.'
 runs:
   using: 'docker'

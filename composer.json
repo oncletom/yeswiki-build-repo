@@ -4,10 +4,10 @@
     "type": "project",
     "license": "GPL-3.0",
     "require": {
-        "phpmd/phpmd": "dev-master"
+        "phpmd/phpmd": "^2.9.0"
     },
     "scripts": {
-      "test": "phpmd . text ruleset.xml --exclude vendor/* --exclude yeswiki-extension-test/*"
+      "test": "phpmd . text ruleset.xml --exclude vendor/*,yeswiki-extension-test/* --suffixes php"
     },
     "autoload": {
       "psr-4": {

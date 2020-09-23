@@ -5,13 +5,15 @@ EXTENSION_PATH=$1
 OUTPUT_DIR=$2
 
 # infered from filesystem. Eg: yeswiki-extension-test -> extension-test
-EXTENSION_ID=$(basename $1 | while read -r line; do echo "${line/yeswiki-/}"; done)
+EXTENSION_ID=$(basename ${1:-$GITHUB_REPOSITORY} | while read -r line; do echo "${line/yeswiki-/}"; done)
 
 # extension name made explicit, or infered from filesystem.
 EXTENSION_NAME="${4:-$EXTENSION_ID}"
 
 # extension version passed via an argument, usually current git tag, or in development
-EXTENSION_VERSION="${4:-dev}"
+GIT_REF="${GITHUB_REF:-dev}"
+GIT_TAG="${GIT_REF#refs/heads/}"
+EXTENSION_VERSION="${4:-$GIT_TAG}"
 
 ARCHIVE_NAME="$EXTENSION_ID-$EXTENSION_VERSION.zip"
 
