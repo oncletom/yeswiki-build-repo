@@ -17,5 +17,5 @@ docker build -t yeswiki/yeswiki-build-repo .
 ```
 
 ```bash
-docker run --rm -v $(pwd)/yeswiki-extension-test:/yeswiki-extension-test yeswiki/yeswiki-build-repo /yeswiki-extension-test /tmp
+docker run --rm -v $(pwd)/yeswiki-extension-test:/github/workspace yeswiki/yeswiki-build-repo /github/workspace /tmp/output
 ```

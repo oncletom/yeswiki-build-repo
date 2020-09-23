@@ -11,7 +11,7 @@ inputs:
   output-dir:
     description: 'Path to extract shasum and zipped archive to.'
     required: false
-    default: /tmp
+    default: /dist
   extension-name:
     description: 'YesWiki extension name (eg: yeswiki-extension-publication)'
     required: false

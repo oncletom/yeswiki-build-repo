@@ -10,13 +10,15 @@ OUTPUT_DIR=$2
 EXTENSION_ID=$(basename ${1:-$GITHUB_REPOSITORY} | while read -r line; do echo "${line/yeswiki-/}"; done)
 
 # extension name made explicit, or infered from filesystem.
-EXTENSION_NAME="${4:-$EXTENSION_ID}"
+EXTENSION_NAME="${3:-$EXTENSION_ID}"
 
 # extension version passed via an argument, usually current git tag, or in development
 GIT_REF="${GITHUB_REF:-dev}"
-GIT_TAG="${GIT_REF#refs/heads/}"
-EXTENSION_VERSION="${4:-$GIT_TAG}"
-
+echo $GIT_REF
+GIT_TAG="${4:-$GIT_REF}"
+echo $GIT_TAG
+EXTENSION_VERSION=$(echo $GIT_TAG | sed -Ee 's/refs\/(heads|tags)\///' | sed -e 's/\//-/g')
+echo $EXTENSION_VERSION
 ARCHIVE_NAME="$EXTENSION_ID-$EXTENSION_VERSION.zip"
 
 # 1. Installs extension dependencies
@@ -30,12 +32,14 @@ cat $EXTENSION_PATH/composer.json |
         '{ $release, $name }' > $EXTENSION_PATH/infos.json
 
 # 3. Package extension
-(cd $EXTENSION_PATH && zip -q -r $OUTPUT_DIR/$ARCHIVE_NAME . -x '*.git*')
+mkdir -p "$OUTPUT_DIR"
+(cd $EXTENSION_PATH && zip -v -q -r $OUTPUT_DIR/$ARCHIVE_NAME . -x '*.git*')
 
 # 4. Create integrity
 MD5SUM_VALUE=$(md5sum "$OUTPUT_DIR/$ARCHIVE_NAME" | cut -f1 -d' ')
 md5sum "$OUTPUT_DIR/$ARCHIVE_NAME" > "$OUTPUT_DIR/$ARCHIVE_NAME.md5"
 
 ls -alh "$OUTPUT_DIR/$ARCHIVE_NAME" "$OUTPUT_DIR/$ARCHIVE_NAME.md5"
+
 echo "::set-output name=md5sum::$MD5SUM_VALUE"
 echo "::set-output name=archive-name::$ARCHIVE_NAME"
