@@ -1,5 +1,7 @@
 #!/bin/sh -l
 
+set -e
+
 COMPOSER_BIN="/usr/bin/composer"
 EXTENSION_PATH=$1
 OUTPUT_DIR=$2
