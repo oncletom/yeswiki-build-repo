@@ -1,6 +1,4 @@
-/vendor/
-/composer.lock
-/composer.phar
-/local.config.json
-/repo.config.json
-
+vendor/
+composer.phar
+yeswiki-extension-test/vendor
+yeswiki-extension-test/composer.lock

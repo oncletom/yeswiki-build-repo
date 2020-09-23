@@ -1,0 +1,20 @@
+name: 'yeswiki-build-repo'
+description: 'Build script to package [YesWiki] **extensions** and **themes**.'
+inputs:
+  extension-dir:
+    description: 'Extension directory to test and package.'
+    required: true
+    default: ${{ github.workspace }}
+  output-dir:
+    description: 'Path to extract shasum and zipped archive to.'
+    required: false
+    default: /tmp
+outputs:
+  shasum:
+    description: 'Package integrity signature.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.extension-dir }}
+    - ${{ inputs.output-dir }}

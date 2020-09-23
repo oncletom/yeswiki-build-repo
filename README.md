@@ -1,14 +1,21 @@
 # build-repo
-Build scripts and github hook to create a yeswiki repository
 
-## Configuration
-Copy the file `repo.config.php.sample` to `repo.config.php` and change the values according to your config
- - config-address: file or url containing a config json for all yeswiki parts (core, extensions, themes). *by default https://raw.githubusercontent.com/YesWiki/yeswiki-config-repo/master/repo.config.json*
- - repo-path: local fullpath for the generated files
- - mail-to: email of the admin (receives update informations)
- - composer-bin: fullpath to the local composer binary.
+Build script to package [YesWiki] **extensions** and **themes**.
 
-## Initialisation
-`php index.php action=init`
-or
-open the url in a browser with the GET parameter action=init.
+## Usage
+
+```bash
+composer install
+sh entrypoint.sh path/to/yeswiki-extension path/to/output
+```
+
+
+## Docker setup
+
+```bash
+docker build -t yeswiki/yeswiki-build-repo .
+```
+
+```bash
+docker run --rm -v $(pwd)/yeswiki-extension-test:/yeswiki-extension-test yeswiki/yeswiki-build-repo /yeswiki-extension-test /tmp
+```
