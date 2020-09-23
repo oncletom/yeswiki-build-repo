@@ -16,7 +16,7 @@ jobs:
       uses: ./
       id: package
       with:
-        extension-dir: ./yeswiki-extension-test
+        extension-dir: /github/workspace/yeswiki-extension-test
         output-dir: /tmp/dist
 
     - name: Get the test extension md5sum
