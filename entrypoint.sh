@@ -14,16 +14,14 @@ EXTENSION_NAME="${3:-$EXTENSION_ID}"
 
 # extension version passed via an argument, usually current git tag, or in development
 GIT_REF="${GITHUB_REF:-dev}"
-echo $GIT_REF
 GIT_TAG="${4:-$GIT_REF}"
-echo $GIT_TAG
 EXTENSION_VERSION=$(echo $GIT_TAG | sed -Ee 's/refs\/(heads|tags)\///' | sed -e 's/\//-/g')
-echo $EXTENSION_VERSION
 ARCHIVE_NAME="$EXTENSION_ID-$EXTENSION_VERSION.zip"
 
 # 1. Installs extension dependencies
-$COMPOSER_BIN install --quiet --no-dev --optimize-autoloader --working-dir="$EXTENSION_PATH"
+$COMPOSER_BIN install --optimize-autoloader --working-dir="$EXTENSION_PATH"
 $COMPOSER_BIN test --working-dir="$EXTENSION_PATH"
+$COMPOSER_BIN install --quiet --no-dev --optimize-autoloader --working-dir="$EXTENSION_PATH"
 
 # 2. Create extension version
 cat $EXTENSION_PATH/composer.json |
