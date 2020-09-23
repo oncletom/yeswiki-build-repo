@@ -9,8 +9,18 @@ inputs:
     description: 'Path to extract shasum and zipped archive to.'
     required: false
     default: /tmp
+  extension-name:
+    description: 'Path to extract shasum and zipped archive to.'
+    required: false
+    default: ${{ github.repository }}
+  extension-version:
+    description: 'Path to extract shasum and zipped archive to.'
+    required: false
+    default: ${{ github.ref.replace('/refs/tags/', '') }}
 outputs:
-  shasum:
+  md5sum:
+    description: 'Package integrity signature.'
+  md5sum:
     description: 'Package integrity signature.'
 runs:
   using: 'docker'
@@ -18,3 +28,5 @@ runs:
   args:
     - ${{ inputs.extension-dir }}
     - ${{ inputs.output-dir }}
+    - ${{ inputs.extension-name }}
+    - ${{ inputs.extension-version }}
