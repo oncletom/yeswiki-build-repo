@@ -1,5 +1,5 @@
 {
-  "name": "yeswiki/sample-extension",
+  "name": "yeswiki/extension-test",
   "description": "A sample extension to package.",
   "type": "project",
   "license": "GPL-3.0",

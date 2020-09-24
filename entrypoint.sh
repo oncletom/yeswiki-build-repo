@@ -12,8 +12,9 @@ EXTENSION_ID=$(basename ${1:-$GITHUB_REPOSITORY} | while read -r line; do echo "
 # extension name made explicit, or infered from filesystem.
 EXTENSION_NAME="${3:-$EXTENSION_ID}"
 
-# extension version passed via an argument, usually current git tag, or in development
-GIT_REF="${GITHUB_REF:-dev}"
+# extension version passed via an argument, usually git tag
+DEV_REF=$(date +%Y-%m-%d-dev)
+GIT_REF="${GITHUB_REF:-DEV_REF}"
 GIT_TAG="${4:-$GIT_REF}"
 EXTENSION_VERSION=$(echo $GIT_TAG | sed -Ee 's/refs\/(heads|tags)\///' | sed -e 's/\//-/g')
 ARCHIVE_NAME="$EXTENSION_ID-$EXTENSION_VERSION.zip"
