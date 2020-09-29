@@ -34,3 +34,5 @@ jobs:
         password: ${{ secrets.GCR_PAT }}
         repository: oncletom/yeswiki-build-repo
         auto_tag: true
+        file: ./Dockerfile
+        path: .
