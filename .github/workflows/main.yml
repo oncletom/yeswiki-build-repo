@@ -22,3 +22,22 @@ jobs:
       run: echo "md5sum is ${{ steps.package.outputs.md5sum }}"
     - name: Get the test extension archive-name
       run: echo "archive-name is ${{ steps.package.outputs.archive-name }}"
+
+  docker-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GCR_PAT }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: oncletom/yeswiki-build-repo:latest
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GCR_PAT }}
