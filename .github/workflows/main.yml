@@ -27,12 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Build and push
-      uses: jerray/publish-docker-action@v1.0.5
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GCR_PAT }}
-        repository: oncletom/yeswiki-build-repo
-        auto_tag: true
-        file: ./Dockerfile
-        path: .
+      run: |
+        echo ${{ secrets.GCR_PAT }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+        docker build -t yeswiki-build-repo .
+        docker tag yeswiki-build-repo ghcr.io/oncletom/yeswiki-build-repo:latest
+        docker push ghcr.io/oncletom/yeswiki-build-repo:latest
