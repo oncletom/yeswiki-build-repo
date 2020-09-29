@@ -42,3 +42,8 @@ ls -alh "$OUTPUT_DIR/$ARCHIVE_NAME" "$OUTPUT_DIR/$ARCHIVE_NAME.md5"
 
 echo "::set-output name=md5sum::$MD5SUM_VALUE"
 echo "::set-output name=archive-name::$ARCHIVE_NAME"
+echo "MD5SUM=$MD5SUM_VALUE" >> variables.env
+echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> variables.env
+echo "EXTENSION_NAME=$EXTENSION_NAME" >> variables.env
+echo "EXTENSION_VERSION=$EXTENSION_VERSION" >> variables.env
+
