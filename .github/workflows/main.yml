@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Build and push
-      uses: jerray/publish-docker-action@v1
+      uses: jerray/publish-docker-action@v1.0.5
       with:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
