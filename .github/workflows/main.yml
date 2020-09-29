@@ -26,18 +26,11 @@ jobs:
   docker-release:
     runs-on: ubuntu-latest
     steps:
-    - name: Login to DockerHub
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GCR_PAT }}
-
     - name: Build and push
-      uses: docker/build-push-action@v2
+      uses: jerray/publish-docker-action@v1
       with:
-        push: true
-        tags: oncletom/yeswiki-build-repo:latest
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GCR_PAT }}
+        repository: oncletom/yeswiki-build-repo
+        auto_tag: true
