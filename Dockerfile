@@ -16,6 +16,6 @@ COPY composer.json /composer.json
 COPY composer.lock /composer.lock
 RUN composer install --quiet
 
-COPY entrypoint.sh /entrypoint.sh
+COPY package.sh /package.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["sh"]

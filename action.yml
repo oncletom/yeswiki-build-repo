@@ -26,6 +26,7 @@ outputs:
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  entrypoint: 'package.sh'
   args:
     - ${{ inputs.extension-dir }}
     - ${{ inputs.output-dir }}
