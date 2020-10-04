@@ -1,0 +1,27 @@
+on:
+  push:
+  schedule:
+    # everyday at 1am
+    - cron:  '0 1 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Copy packager configuration for CI
+      run: cp ci.config.json.example local.config.json
+
+    - name: Install PHP dependencies
+      uses: lavoweb/php-7.3:composer
+      run: composer install
+
+    - name: Generate packages list
+      run: php index.php action=init
+
+    - name: Deploy on GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        # ./dist is the folder configured in `ci.config.json.sample`
+        publish_dir: ./dist
